@@ -19,8 +19,10 @@ let db;
 try {
     mongoClient.connect()
     db = mongoClient.db()
-    }
-    catch(err) { console.log(err.message)}
+}
+catch (err) {
+    console.log(err.message)
+}
 
 
 //POST - PARTICIPANTS
@@ -35,7 +37,7 @@ app.post("/participants", async (request, response) => {
     }
 
     //Novo usúario
-    const nomeExiste = await db.collection("participants").findOne({ name: usuario });
+    const nomeExiste = await db.collection("participants").findOne({ name: usuario.name });
     if (nomeExiste) {
         return response.status(409).send("Nome de usuário em uso")
     }
@@ -55,11 +57,15 @@ app.post("/participants", async (request, response) => {
         response.sendStatus(201)
 
     } catch (err) {
-        return res.status(500).send(err.message)
+        return response.status(500).send(err.message)
     }
 })
 
 // GET - PARTICIPANTS
+app.get('/participants', async (request, response) => {
+    const usuarios = await db.collection("participants").find().toArray()
+        return response.status(200).send(usuarios)
+    })
 
 // POST - MESSAGES
 
