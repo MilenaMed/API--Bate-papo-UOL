@@ -3,6 +3,7 @@ import cors from "cors";
 import { MongoClient, ObjectId } from "mongodb";
 import dotenv from "dotenv";
 import dayjs from "dayjs";
+import { participantes } from "./schemas.js";
 
 const app = express();
 
@@ -12,24 +13,29 @@ app.use(express.json())
 dotenv.config()
 
 //Mongo
-const mongoClient = new MongoClient(process.env.DATABASE_URL)
-mongoClient.connect()
-    .then(() => db = mongoClient.db())
-    .catch((err) => console.log(err.message))
+const mongoClient = new MongoClient(process.env.DATABASE_URL);
+let db;
+
+try {
+    mongoClient.connect()
+    db = mongoClient.db()
+    }
+    catch(err) { console.log(err.message)}
+
 
 //POST - PARTICIPANTS
 
 app.post("/participants", async (request, response) => {
-    const usuario = request.body
 
-    //VALIDAÇÃO
-    const validacao = userSchemas.validate(usuario)
+    const usuario = request.body;
+    const validacao = participantes.validate(usuario);
+
     if (validacao.err) {
         return response.sendStatus(422)
     }
 
     //Novo usúario
-    const nomeExiste = await dbcollection("participants").findOne({ nome: usuario })
+    const nomeExiste = await db.collection("participants").findOne({ name: usuario });
     if (nomeExiste) {
         return response.status(409).send("Nome de usuário em uso")
     }
