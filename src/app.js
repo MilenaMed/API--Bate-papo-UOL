@@ -36,18 +36,18 @@ app.post("/participants", async (request, response) => {
 
     //Novo usúario
     const nomeExiste = await db.collection("participants").findOne({ name: usuario })
-
+console.log(usuario.name)
     if (nomeExiste) {
         return response.status(409).send("Nome de usuário em uso")
     }
     try {
         await db.collection("participants").insertOne({
-            name: usuario,
+            name: usuario.name,
             lastStatus: Date.now()
         })
 
         await db.collection("messages").insertOne({
-            from: usuario,
+            from: usuario.name,
             to: "Todos",
             text: "entra na sala...",
             type: "status",
@@ -84,6 +84,31 @@ app.post("messages", async (request, response) => {
 })
 
 //GET - MESSAGES
+app.get('/messages', async (request, response) => {
+    const limite = request.query.limit
+    const limiteMax = parseInt(limite)
 
-//POST/ STATUS
+    try {
+        if (limit) {
+            if (limiteMax <= 0 || isNaN(limit)) {
+                return res.sendStatus(422)
+            }
+
+            const usuario = request.headers.user
+            const mensagens = await db.collection("messages").find({$or: [
+                {to: "Todos"}, 
+                {to: usuario}, 
+                {from: usuario},
+                { type: "message" }
+            ]}).toArray();
+
+            return response.send([...mensagens].slice(-limit).reverse())
+        }
+        return response.sendStatus(200).send([...mensagens].reverse())
+    } catch(err) {
+        return response.sendStatus(422).send("Erro: Não foi possível pegar mensagens")
+    }
+})
+
+//POST- STATUS
 app.listen(5000);
