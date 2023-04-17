@@ -23,8 +23,6 @@ try {
 catch (err) {
     console.log(err.message)
 }
-//Globais
-const nomeExiste = await db.collection("participants").findOne({ name: usuario })
 
 //POST - PARTICIPANTS
 
@@ -37,6 +35,7 @@ app.post("/participants", async (request, response) => {
     }
 
     //Novo usúario
+    const nomeExiste = await db.collection("participants").findOne({ name: usuario })
 
     if (nomeExiste) {
         return response.status(409).send("Nome de usuário em uso")
@@ -76,6 +75,8 @@ app.post("messages", async (request, response) => {
     if (validacaomensagem.error) {
         return response.sendStatus(422)
     }
+
+    const nomeExiste = await db.collection("participants").findOne({ name: usuario })
 
     if (!nomeExiste) {
         return response.status(422).send("Nome de usuário não encontrado")
