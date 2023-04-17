@@ -31,13 +31,13 @@ app.post("/participants", async (request, response) => {
 
     const usuario = request.body;
     const validacao = participantes.validate(usuario);
-
-    if (validacao.err) {
+    console.log(usuario)
+    if (validacao.error) {
         return response.sendStatus(422)
     }
 
     //Novo usúario
-    const nomeExiste = await db.collection("participants").findOne({ name: usuario.name });
+    const nomeExiste = await db.collection("participants").findOne({ name: usuario });
     if (nomeExiste) {
         return response.status(409).send("Nome de usuário em uso")
     }
@@ -64,13 +64,12 @@ app.post("/participants", async (request, response) => {
 // GET - PARTICIPANTS
 app.get('/participants', async (request, response) => {
     const usuarios = await db.collection("participants").find().toArray()
-        return response.status(200).send(usuarios)
-    })
+    return response.status(200).send(usuarios)
+})
 
 // POST - MESSAGES
 
 //GET - MESSAGES
 
 //POST/ STATUS
-
 app.listen(5000);
