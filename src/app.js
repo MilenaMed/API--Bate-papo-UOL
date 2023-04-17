@@ -3,7 +3,7 @@ import cors from "cors";
 import { MongoClient, ObjectId } from "mongodb";
 import dotenv from "dotenv";
 import dayjs from "dayjs";
-import { participantes } from "./schemas.js";
+import { participantes, mensagem } from "./schemas.js";
 
 const app = express();
 
@@ -23,7 +23,8 @@ try {
 catch (err) {
     console.log(err.message)
 }
-
+//Globais
+const nomeExiste = await db.collection("participants").findOne({ name: usuario })
 
 //POST - PARTICIPANTS
 
@@ -31,13 +32,12 @@ app.post("/participants", async (request, response) => {
 
     const usuario = request.body;
     const validacao = participantes.validate(usuario);
-    console.log(usuario)
     if (validacao.error) {
         return response.sendStatus(422)
     }
 
     //Novo usúario
-    const nomeExiste = await db.collection("participants").findOne({ name: usuario });
+
     if (nomeExiste) {
         return response.status(409).send("Nome de usuário em uso")
     }
@@ -52,7 +52,7 @@ app.post("/participants", async (request, response) => {
             to: "Todos",
             text: "entra na sala...",
             type: "status",
-            time: dayjs().format('HH:mm:ss')
+            time: dayjs(Date.now()).format('HH:mm:ss')
         })
         response.sendStatus(201)
 
@@ -68,6 +68,19 @@ app.get('/participants', async (request, response) => {
 })
 
 // POST - MESSAGES
+app.post("messages", async (request, response) => {
+    const mensagemEnviada = request.body;
+
+    const validacaomensagem = mensagem.validate(mensagemEnviada)
+
+    if (validacaomensagem.error) {
+        return response.sendStatus(422)
+    }
+
+    if (!nomeExiste) {
+        return response.status(422).send("Nome de usuário não encontrado")
+    }
+})
 
 //GET - MESSAGES
 
