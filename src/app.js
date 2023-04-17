@@ -1,8 +1,8 @@
 import express from "express";
 import cors from "cors";
 import { MongoClient, ObjectId } from "mongodb";
-import dotenv from "dotenv"
-import dayjs from "dayjs"
+import dotenv from "dotenv";
+import dayjs from "dayjs";
 
 const app = express();
 
@@ -23,7 +23,7 @@ app.post("/participants", async (request, response) => {
     const usuario = request.body
 
     //VALIDAÇÃO
-    const validacao = schemas.participants.validate(usuario)
+    const validacao = userSchemas.validate(usuario)
     if (validacao.err) {
         return response.sendStatus(422)
     }
@@ -49,7 +49,7 @@ app.post("/participants", async (request, response) => {
         response.sendStatus(201)
 
     } catch (err) {
-        return res.sendStatus(500).send(err.message)
+        return res.status(500).send(err.message)
     }
 })
 
